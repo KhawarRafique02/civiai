@@ -41,7 +41,7 @@ const SubmitComplaintPage = () => {
     try {
       const formData = new FormData();
       formData.append("image", imageFile);
-      const response = await fetch("http://127.0.0.1:5000/detect", {
+      const response = await fetch("https://civiai-ai-production.up.railway.app/detect", {
         method: "POST",
         body: formData,
       });
