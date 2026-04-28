@@ -20,7 +20,39 @@ const SubmitComplaintPage = () => {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const detectWithAI = async () => {
+    if (!imageFile) {
+      toast.error("Pehle image upload karo!");
+      return;
+    }
+    setAiLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("image", imageFile);
+      const response = await fetch("http://127.0.0.1:5000/detect", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+      setCategory(data.category);
+      toast.success("AI Detected: " + data.label);
+    } catch (error) {
+      toast.error("Could not connect to AI server!");
+    }
+    setAiLoading(false);
+  };
 
   const getLocation = () => {
     if (!navigator.geolocation) {
@@ -65,7 +97,7 @@ const SubmitComplaintPage = () => {
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#f0fdf4", padding: "2rem" }}>
-      
+
       {/* Navbar */}
       <div style={{ background: "white", padding: "1rem 2rem", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem", boxShadow: "0 2px 10px rgba(0,0,0,0.08)" }}>
         <h1 style={{ color: "#16a34a", margin: 0 }}>🏙️ CiviAI</h1>
@@ -79,7 +111,31 @@ const SubmitComplaintPage = () => {
         <h2 style={{ margin: "0 0 1.5rem", color: "#111827" }}>Report an Issue</h2>
 
         <form onSubmit={handleSubmit}>
-          
+
+          {/* Image Upload */}
+          <div style={{ marginBottom: "16px" }}>
+            <label style={{ display: "block", marginBottom: "6px", fontWeight: "500" }}>Upload Photo</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", boxSizing: "border-box" }}
+            />
+            {imagePreview && (
+              <img src={imagePreview} alt="preview" style={{ marginTop: "10px", width: "100%", height: "200px", objectFit: "cover", borderRadius: "10px" }} />
+            )}
+          </div>
+
+          {/* AI Detect Button */}
+          <button
+            type="button"
+            onClick={detectWithAI}
+            disabled={aiLoading || !imageFile}
+            style={{ width: "100%", padding: "12px", marginBottom: "16px", backgroundColor: "#f0fdf4", color: "#16a34a", border: "2px solid #16a34a", borderRadius: "8px", fontSize: "15px", fontWeight: "600", cursor: "pointer" }}
+          >
+            {aiLoading ? "🤖 AI Detecting..." : "🤖 Auto-Detect with AI"}
+          </button>
+
           {/* Title */}
           <div style={{ marginBottom: "16px" }}>
             <label style={{ display: "block", marginBottom: "6px", fontWeight: "500" }}>Issue Title</label>
