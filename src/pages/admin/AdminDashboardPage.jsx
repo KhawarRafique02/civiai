@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
-import { collection, getDocs, doc, updateDoc, orderBy, query } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, updateDoc, orderBy, query } from "firebase/firestore";
 import { auth, db } from "../../services/firebase";
 import toast from "react-hot-toast";
 
@@ -16,23 +16,39 @@ const AdminDashboardPage = () => {
   const navigate = useNavigate();
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [checking, setChecking] = useState(true);
   const [filter, setFilter] = useState("All");
-
-  useEffect(() => {
-    fetchComplaints();
-  }, []);
 
   const fetchComplaints = async () => {
     try {
       const q = query(collection(db, "complaints"), orderBy("createdAt", "desc"));
       const snapshot = await getDocs(q);
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const data = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
       setComplaints(data);
     } catch (error) {
       toast.error("Error loading complaints");
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const user = auth.currentUser;
+      if (!user) {
+        navigate("/login");
+        return;
+      }
+      const docSnap = await getDoc(doc(db, "users", user.uid));
+      if (!docSnap.exists() || docSnap.data().role !== "admin") {
+        toast.error("Access denied! Admins only.");
+        navigate("/dashboard");
+        return;
+      }
+      setChecking(false);
+      fetchComplaints();
+    };
+    checkAdmin();
+  }, [navigate]);
 
   const updateStatus = async (id, newStatus) => {
     try {
@@ -50,8 +66,13 @@ const AdminDashboardPage = () => {
     navigate("/login");
   };
 
-  const filtered = filter === "All" ? complaints : complaints.filter(c => c.status === filter);
+  if (checking) return (
+    <div style={{ textAlign: "center", marginTop: "4rem", color: "#6b7280" }}>
+      Checking access...
+    </div>
+  );
 
+  const filtered = filter === "All" ? complaints : complaints.filter(c => c.status === filter);
   const total      = complaints.length;
   const resolved   = complaints.filter(c => c.status === "Resolved").length;
   const inProgress = complaints.filter(c => c.status === "In Progress").length;
@@ -84,7 +105,7 @@ const AdminDashboardPage = () => {
       </div>
 
       {/* Filter Tabs */}
-      <div style={{ display: "flex", gap: "8px", marginBottom: "1.5rem" }}>
+      <div style={{ display: "flex", gap: "8px", marginBottom: "1.5rem", flexWrap: "wrap" }}>
         {["All", "Submitted", "Under Review", "In Progress", "Resolved"].map(status => (
           <button
             key={status}

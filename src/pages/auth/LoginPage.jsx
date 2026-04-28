@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../services/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "../../services/firebase";
 import toast from "react-hot-toast";
 
 const LoginPage = () => {
@@ -14,9 +15,18 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      toast.success("Login successful!");
-      navigate("/dashboard");
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Role check karo
+      const docSnap = await getDoc(doc(db, "users", user.uid));
+      if (docSnap.exists() && docSnap.data().role === "admin") {
+        toast.success("Welcome Admin!");
+        navigate("/admin");
+      } else {
+        toast.success("Login successful!");
+        navigate("/dashboard");
+      }
     } catch (error) {
       toast.error("Login failed: " + error.message);
     }
