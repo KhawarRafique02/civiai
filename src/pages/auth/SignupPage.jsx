@@ -18,17 +18,12 @@ const SignupPage = () => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
       await updateProfile(user, { displayName: name });
-
       await setDoc(doc(db, "users", user.uid), {
-        uid: user.uid,
-        name,
-        email,
+        uid: user.uid, name, email,
         role: "citizen",
         createdAt: serverTimestamp()
       });
-
       toast.success("Account created!");
       navigate("/dashboard");
     } catch (error) {
@@ -38,52 +33,50 @@ const SignupPage = () => {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f0fdf4" }}>
-      <div style={{ background: "white", padding: "2rem", borderRadius: "16px", boxShadow: "0 4px 20px rgba(0,0,0,0.1)", width: "100%", maxWidth: "400px" }}>
+    <div style={{
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "#f0fdf4",
+      padding: "1rem",
+      boxSizing: "border-box"
+    }}>
+      <div style={{
+        background: "white",
+        padding: "2rem",
+        borderRadius: "16px",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+        width: "100%",
+        maxWidth: "400px",
+        boxSizing: "border-box"
+      }}>
         <h1 style={{ color: "#16a34a", fontSize: "28px", marginBottom: "4px" }}>🏙️ CiviAI</h1>
-        <p style={{ color: "#6b7280", marginBottom: "24px" }}>Create your account</p>
+        <p style={{ color: "#6b7280", marginBottom: "24px", fontSize: "14px" }}>Create your account</p>
 
         <form onSubmit={handleSignup}>
-          <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", marginBottom: "6px", fontWeight: "500" }}>Full Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              placeholder="Ali Hassan"
-              style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", boxSizing: "border-box" }}
-            />
-          </div>
-
-          <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", marginBottom: "6px", fontWeight: "500" }}>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="you@example.com"
-              style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", boxSizing: "border-box" }}
-            />
-          </div>
-
-          <div style={{ marginBottom: "24px" }}>
-            <label style={{ display: "block", marginBottom: "6px", fontWeight: "500" }}>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="••••••••"
-              style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "14px", boxSizing: "border-box" }}
-            />
-          </div>
+          {[
+            { label: "Full Name", value: name, set: setName, type: "text", placeholder: "Ali Hassan" },
+            { label: "Email", value: email, set: setEmail, type: "email", placeholder: "you@example.com" },
+            { label: "Password", value: password, set: setPassword, type: "password", placeholder: "••••••••" },
+          ].map(field => (
+            <div key={field.label} style={{ marginBottom: "16px" }}>
+              <label style={{ display: "block", marginBottom: "6px", fontWeight: "500", fontSize: "14px" }}>{field.label}</label>
+              <input
+                type={field.type}
+                value={field.value}
+                onChange={(e) => field.set(e.target.value)}
+                required
+                placeholder={field.placeholder}
+                style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "16px", boxSizing: "border-box" }}
+              />
+            </div>
+          ))}
 
           <button
             type="submit"
             disabled={loading}
-            style={{ width: "100%", padding: "12px", backgroundColor: "#16a34a", color: "white", border: "none", borderRadius: "8px", fontSize: "16px", fontWeight: "600", cursor: "pointer" }}
+            style={{ width: "100%", padding: "14px", backgroundColor: "#16a34a", color: "white", border: "none", borderRadius: "8px", fontSize: "16px", fontWeight: "600", cursor: "pointer", marginTop: "8px" }}
           >
             {loading ? "Creating account..." : "Create Account"}
           </button>

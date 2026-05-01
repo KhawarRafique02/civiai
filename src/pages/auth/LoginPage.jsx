@@ -50,7 +50,7 @@ const LoginPage = () => {
         maxWidth: "400px",
         boxSizing: "border-box"
       }}>
-        <h1 style={{ color: "#16a34a", fontSize: "28px", marginBottom: "4px" }}>🏙️ CiviAI</h1>
+        <h1 style={{ color: "#16a34a", fontSize: "28px", marginBottom: "4px" }}>CiviAI</h1>
         <p style={{ color: "#6b7280", marginBottom: "24px", fontSize: "14px" }}>Login to your account</p>
 
         <form onSubmit={handleLogin}>
