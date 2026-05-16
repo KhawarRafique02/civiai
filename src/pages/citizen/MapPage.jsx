@@ -18,6 +18,8 @@ const MapPage = () => {
   const navigate = useNavigate();
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState("All");
+  const isAdmin = window.location.pathname.includes("/admin");
 
   useEffect(() => {
     const fetchComplaints = async () => {
@@ -45,6 +47,10 @@ const MapPage = () => {
     "Resolved":     "#16a34a",
   };
 
+  const filtered = filterStatus === "All"
+    ? complaints
+    : complaints.filter(c => c.status === filterStatus);
+
   const defaultCenter = [31.5204, 74.3587];
 
   return (
@@ -54,7 +60,7 @@ const MapPage = () => {
       <div style={{ background: "white", padding: "0.75rem 1rem", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", boxShadow: "0 2px 10px rgba(0,0,0,0.08)" }}>
         <h1 style={{ color: "#16a34a", margin: 0, fontSize: "20px" }}>🏙️ CiviAI</h1>
         <button
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate(isAdmin ? "/admin" : "/dashboard")}
           style={{ backgroundColor: "#f3f4f6", color: "#374151", border: "none", padding: "8px 14px", borderRadius: "8px", cursor: "pointer", fontWeight: "600", fontSize: "13px" }}
         >
           ← Back
@@ -63,11 +69,28 @@ const MapPage = () => {
 
       {/* Header */}
       <div style={{ marginBottom: "1rem" }}>
-        <h2 style={{ color: "#111827", margin: "0 0 4px", fontSize: "18px" }}>🗺️ Complaints Map</h2>
+        <h2 style={{ color: "#111827", margin: "0 0 4px", fontSize: "18px" }}>
+          🗺️ {isAdmin ? "All Complaints Map" : "Complaints Map"}
+        </h2>
         <p style={{ color: "#6b7280", margin: 0, fontSize: "14px" }}>
-          {complaints.length} complaints with location data
+          {filtered.length} complaints shown
         </p>
       </div>
+
+      {/* Filter tabs — only for admin */}
+      {isAdmin && (
+        <div style={{ display: "flex", gap: "6px", marginBottom: "1rem", flexWrap: "wrap" }}>
+          {["All", "Submitted", "Under Review", "In Progress", "Resolved"].map(status => (
+            <button
+              key={status}
+              onClick={() => setFilterStatus(status)}
+              style={{ padding: "6px 12px", borderRadius: "8px", border: "1px solid #e5e7eb", cursor: "pointer", fontWeight: "600", fontSize: "12px", backgroundColor: filterStatus === status ? "#16a34a" : "white", color: filterStatus === status ? "white" : "#374151" }}
+            >
+              {status}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Map */}
       {loading ? (
@@ -83,13 +106,13 @@ const MapPage = () => {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='&copy; OpenStreetMap contributors'
             />
-            {complaints.map(complaint => {
+            {filtered.map(complaint => {
               try {
                 const position = parseLocation(complaint.location);
                 return (
                   <Marker key={complaint.id} position={position}>
                     <Popup>
-                      <div style={{ minWidth: "140px", fontSize: "13px" }}>
+                      <div style={{ minWidth: "160px", fontSize: "13px" }}>
                         <strong>{complaint.title}</strong>
                         <br />
                         <span style={{ textTransform: "capitalize" }}>
@@ -101,6 +124,17 @@ const MapPage = () => {
                         </span>
                         <br />
                         <span style={{ color: "#9ca3af" }}>By: {complaint.userName}</span>
+                        {isAdmin && (
+                          <>
+                            <br />
+                            <button
+                              onClick={() => navigate(`/admin/complaint/${complaint.id}`)}
+                              style={{ marginTop: "6px", width: "100%", padding: "5px", backgroundColor: "#eff6ff", color: "#1d4ed8", border: "1px solid #bfdbfe", borderRadius: "6px", cursor: "pointer", fontSize: "12px", fontWeight: "600" }}
+                            >
+                              View Details
+                            </button>
+                          </>
+                        )}
                       </div>
                     </Popup>
                   </Marker>

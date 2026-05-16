@@ -5,21 +5,24 @@ import LoginPage from "./pages/auth/LoginPage";
 import SignupPage from "./pages/auth/SignupPage";
 import DashboardPage from "./pages/citizen/DashboardPage";
 import SubmitComplaintPage from "./pages/citizen/SubmitComplaintPage";
-import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import MapPage from "./pages/citizen/MapPage";
+import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
+import AdminComplaintDetailPage from "./pages/admin/AdminComplaintDetailPage";
 
 function App() {
   return (
     <Router>
       <Toaster position="top-right" />
       <Routes>
-        <Route path="/login"            element={<LoginPage />} />
-        <Route path="/signup"           element={<SignupPage />} />
-        <Route path="/dashboard"        element={<DashboardPage />} />
-        <Route path="/submit-complaint" element={<SubmitComplaintPage />} />
-        <Route path="/admin"            element={<AdminDashboardPage />} />
-        <Route path="/map"              element={<MapPage />} />
-        <Route path="/"                 element={<Navigate to="/login" replace />} />
+        <Route path="/login"                    element={<LoginPage />} />
+        <Route path="/signup"                   element={<SignupPage />} />
+        <Route path="/dashboard"                element={<DashboardPage />} />
+        <Route path="/submit-complaint"         element={<SubmitComplaintPage />} />
+        <Route path="/map"                      element={<MapPage />} />
+        <Route path="/admin"                    element={<AdminDashboardPage />} />
+        <Route path="/admin/map"                element={<MapPage />} />
+        <Route path="/admin/complaint/:id"      element={<AdminComplaintDetailPage />} />
+        <Route path="/"                         element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   );

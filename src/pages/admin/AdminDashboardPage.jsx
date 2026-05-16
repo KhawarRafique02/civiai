@@ -81,12 +81,20 @@ const AdminDashboardPage = () => {
           <h1 style={{ color: "#16a34a", margin: 0, fontSize: "18px" }}>🏙️ CiviAI</h1>
           <p style={{ margin: 0, fontSize: "12px", color: "#6b7280" }}>Admin Panel</p>
         </div>
-        <button
-          onClick={handleLogout}
-          style={{ backgroundColor: "#fee2e2", color: "#dc2626", border: "none", padding: "8px 12px", borderRadius: "8px", cursor: "pointer", fontWeight: "600", fontSize: "13px" }}
-        >
-          Logout
-        </button>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <button
+            onClick={() => navigate("/admin/map")}
+            style={{ backgroundColor: "#eff6ff", color: "#1d4ed8", border: "1px solid #bfdbfe", padding: "8px 12px", borderRadius: "8px", cursor: "pointer", fontWeight: "600", fontSize: "13px" }}
+          >
+            🗺️ All Map
+          </button>
+          <button
+            onClick={handleLogout}
+            style={{ backgroundColor: "#fee2e2", color: "#dc2626", border: "none", padding: "8px 12px", borderRadius: "8px", cursor: "pointer", fontWeight: "600", fontSize: "13px" }}
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -117,7 +125,7 @@ const AdminDashboardPage = () => {
         ))}
       </div>
 
-      {/* Complaints — CARD layout for mobile */}
+      {/* Complaints Cards */}
       {loading ? (
         <p style={{ textAlign: "center", color: "#9ca3af" }}>Loading...</p>
       ) : filtered.length === 0 ? (
@@ -127,7 +135,7 @@ const AdminDashboardPage = () => {
           {filtered.map(c => (
             <div key={c.id} style={{ background: "white", borderRadius: "12px", padding: "1rem", boxShadow: "0 2px 8px rgba(0,0,0,0.06)", border: "1px solid #e5e7eb" }}>
 
-              {/* Top row - title + status */}
+              {/* Top row */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "8px", marginBottom: "8px" }}>
                 <h3 style={{ margin: 0, fontSize: "15px", color: "#111827", fontWeight: "600", flex: 1 }}>{c.title}</h3>
                 <span style={{ backgroundColor: statusColor[c.status]?.bg, color: statusColor[c.status]?.text, padding: "3px 8px", borderRadius: "99px", fontSize: "11px", fontWeight: "600", whiteSpace: "nowrap", flexShrink: 0 }}>
@@ -140,6 +148,24 @@ const AdminDashboardPage = () => {
                 <p style={{ margin: "2px 0" }}>👤 {c.userName || "Unknown"}</p>
                 <p style={{ margin: "2px 0" }}>🏷️ {c.category?.replace(/_/g, " ") || "N/A"}</p>
                 <p style={{ margin: "2px 0" }}>📍 {c.location || "No location"}</p>
+              </div>
+
+              {/* Buttons Row */}
+              <div style={{ display: "flex", gap: "8px", marginBottom: "10px" }}>
+                <button
+                  onClick={() => navigate(`/admin/complaint/${c.id}`)}
+                  style={{ flex: 1, padding: "8px", backgroundColor: "#eff6ff", color: "#1d4ed8", border: "1px solid #bfdbfe", borderRadius: "8px", cursor: "pointer", fontWeight: "600", fontSize: "13px" }}
+                >
+                  👁️ View Details
+                </button>
+                {c.location && c.location.includes(",") && (
+                  <button
+                    onClick={() => navigate(`/admin/complaint/${c.id}`)}
+                    style={{ flex: 1, padding: "8px", backgroundColor: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0", borderRadius: "8px", cursor: "pointer", fontWeight: "600", fontSize: "13px" }}
+                  >
+                    🗺️ View on Map
+                  </button>
+                )}
               </div>
 
               {/* Status Update */}
